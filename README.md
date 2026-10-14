@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MyCampus
 
-## Getting Started
+A student event-planning app built with Next.js, TypeScript, Tailwind, Supabase, and `ical.js`.
 
-First, run the development server:
+## Current implementation
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Responsive marketing page and event workspace with clearly labeled demo mode.
+- Create, search, and delete events; complete existing milestones; detect overlapping event sessions.
+- ICS preview/import with duplicate checks.
+- Travel plans per event, including origin, destination, mode, estimate, arrival buffer, notes, and calculated departure time. Plans persist in local demo storage or Supabase for a signed-in account.
+- Create teams and generate private, seven-day invitation links for signed-in users. Invitees must sign in with the invited email. Links are copied for the inviter to share manually; the app does not send email.
+- Local demo teams are browser-only and are explicitly not shared with other users.
+- Email/password signup, sign-in, sign-out, password reset request, and Supabase RLS schema.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This is still a development foundation, not a complete production service. Team rosters, invitation revocation, full milestone CRUD, server-side protection for all private pages, account export/deletion, scheduled reminders, and verified event discovery remain incomplete. The demo Discover listings are illustrative. ICS import is a file import, not a calendar sync.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Requirements
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js 20.9 or later
+- A Supabase project for account-backed data and real team invitations (optional for local demo use)
 
-## Learn More
+## Local development
 
-To learn more about Next.js, take a look at the following resources:
+1. Install dependencies with `npm install`.
+2. Copy `.env.example` to `.env.local`.
+3. Run `npm run dev` and open `http://localhost:3000`.
+4. Without Supabase values, the event and travel demo saves in this browser. Demo teams are local-only; sign-in and real invitations need Supabase.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Supabase setup
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create a Supabase project.
+2. In the SQL editor, run `supabase/migrations/202610140001_initial_schema.sql`.
+3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` using the project's URL and publishable/anon key. Never place a service-role key in a browser variable.
+4. In Supabase Auth URL configuration, set the local site URL to `http://localhost:3000` and add your deployed URL and dashboard redirect URL.
+5. Configure email confirmation and a production email provider in Supabase Auth.
+6. To enable secure invitation acceptance, set `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` and in Vercel's server environment settings. Keep this key server-only; do not use a `NEXT_PUBLIC_` prefix.
 
-## Deploy on Vercel
+Invitation acceptance checks the token, expiration, and signed-in user's email before adding membership. No invitation email is sent automatically; share the generated link yourself.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Vercel deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push the project to GitHub and import it in Vercel.
+2. Add the public Supabase URL and anon/publishable key to Preview and Production environments.
+3. Apply the SQL migration to the matching Supabase project.
+4. Add the deployed domain to Supabase Auth URL configuration.
+5. Add the server-only service-role key only if enabling team invite acceptance.
+6. Deploy with the Vercel production build.
+
+## Checks
+
+- `npm run test`
+- `npm run lint`
+- `npm run typecheck`
+- `npx next build --webpack`
+
+## Data and privacy
+
+Unauthenticated demo events, travel plans, and teams are stored in this browser. Clear this site's browser storage to remove them. Authenticated events, travel plans, and teams use Supabase with row-level access policies. Travel estimates are user-entered and are not live route calculations. Demo listings are not verified. This preview does not provide complete user data export or account deletion, and it does not send email or push reminders.

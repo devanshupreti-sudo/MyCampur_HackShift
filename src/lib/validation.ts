@@ -1,0 +1,4 @@
+import {z} from "zod";
+export const eventInputSchema=z.object({title:z.string().trim().min(1).max(240),category:z.string().trim().min(1),startsAt:z.string().datetime({offset:true}),endsAt:z.string().datetime({offset:true})}).refine(v=>new Date(v.endsAt)>new Date(v.startsAt),{path:["endsAt"],message:"End time must be after start time"});
+export function normalizedScore(scores:Record<string,number|null|undefined>,weights:Record<string,number>){let total=0,used=0;for(const [key,weight] of Object.entries(weights)){const score=scores[key];if(Number.isFinite(score)){total+=(score as number)*weight;used+=weight}}return used?Math.round(total/used):null}
+export function isDuplicateEvent(title:string,date:string,events:{title:string;date:string}[]){return events.some(e=>e.title.trim().toLocaleLowerCase()===title.trim().toLocaleLowerCase()&&new Date(e.date).toDateString()===new Date(date).toDateString())}

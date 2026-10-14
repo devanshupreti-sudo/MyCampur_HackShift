@@ -1,0 +1,9 @@
+export type Milestone = { id:string; title:string; date:string; done:boolean; kind:string };
+export type CampusEvent = { id:string; title:string; category:string; date:string; end:string; location:string; status:string; color:string; milestones:Milestone[] };
+export const demoEvents:CampusEvent[]=[
+{id:"ev-1",title:"Hack the North",category:"Hackathon",date:"2026-10-19T09:00:00+05:30",end:"2026-10-19T18:00:00+05:30",location:"IIT Delhi · New Delhi",status:"Registered",color:"#9ce4c4",milestones:[{id:"m-1",title:"Submit project abstract",date:"2026-10-17T23:59:00+05:30",done:false,kind:"Submission"},{id:"m-2",title:"Confirm team attendance",date:"2026-10-18T18:00:00+05:30",done:false,kind:"Team"}]},
+{id:"ev-2",title:"Applied ML Workshop",category:"Workshop",date:"2026-10-19T14:00:00+05:30",end:"2026-10-19T16:00:00+05:30",location:"Online · Zoom",status:"Confirmed",color:"#d5caff",milestones:[{id:"m-3",title:"Complete pre-read",date:"2026-10-18T20:00:00+05:30",done:false,kind:"Preparation"}]},
+{id:"ev-3",title:"CodeSprint National",category:"Competition",date:"2026-10-27T10:00:00+05:30",end:"2026-10-27T15:00:00+05:30",location:"Online",status:"Submitted",color:"#ffe29d",milestones:[{id:"m-4",title:"Shortlist announcement",date:"2026-10-23T17:00:00+05:30",done:false,kind:"Announcement"}]}
+];
+export function findConflicts(events:CampusEvent[]){const out:{a:CampusEvent;b:CampusEvent;minutes:number}[]=[];for(let i=0;i<events.length;i++)for(let j=i+1;j<events.length;j++){const a=events[i],b=events[j],start=Math.max(+new Date(a.date),+new Date(b.date)),end=Math.min(+new Date(a.end),+new Date(b.end));if(end>start)out.push({a,b,minutes:Math.round((end-start)/60000)})}return out}
+export function departureTime(start:string,duration:number,buffer:number){return new Date(new Date(start).getTime()-(duration+buffer)*60000)}
